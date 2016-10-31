@@ -1,15 +1,23 @@
+%usage: script should be in same location as the images to be cropped
+%no additional images should be present in the folder
+%the first image will be displayed, crop the image using the GUI crop box
+%double click in the crop box or right click -> crop image
+%matlab command window will display number of images and ask for dimensions
+%for crop montage
+%remember to make the command window active!
+
 clc;
 clear;
 close all;
 
 mainDir = fullfile(cd);
 
-imDir = dir('*.png');       %filesnames saved to variable imDir.name
+imDir = dir('*.png');       %filenames saved to variable imDir.name
 lenPic = length(imDir);     %number of pictures
-pics = [];                   %empty array to store pics
+pics = [];                  %empty array to store pics
 tempFileName = [];
 
-%initialise crop area
+%initialise crop area from first image
 I = imread(imDir(1).name);
 [I2, rect] = imcrop(I);
 %I2: cropped area
@@ -44,8 +52,8 @@ cd(temploc);
  disp(dispText);
 
  
- x = input('Please input X dimension \n');
- y = input('Please input Y dimension \n');
+ x = input('Please input X dimension for crop montage \n');
+ y = input('Please input Y dimension for crop montage \n');
  montage(tempFileNames, 'Size', [y x]);
  
  
