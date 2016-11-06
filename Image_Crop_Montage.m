@@ -5,6 +5,7 @@
 %matlab command window will display number of images and ask for dimensions
 %for crop montage
 %remember to make the command window active!
+%test change
 
 
 %%
