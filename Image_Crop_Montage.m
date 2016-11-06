@@ -5,13 +5,14 @@
 %matlab command window will display number of images and ask for dimensions
 %for crop montage
 %remember to make the command window active!
-%test change
 
 
 %%
 clc;
 clear;
 close all;
+iptsetpref('ImshowBorder','tight');
+
 
 mainDir = fullfile(cd);
 
@@ -70,5 +71,5 @@ figure;
 fig = montage(tempFileNames, 'Size', [y x]);                            %display cropped images as montage
 
 cd(mainDir);                                                            %change directory to original directory
-saveas(fig,'output.jpg');                                               %save figure as a file 'output.jpg'
- 
+
+hgexport(gcf, 'output.jpg', hgexport('factorystyle'), 'Format', 'jpeg'); %save figure as a file 'output.jpg'
