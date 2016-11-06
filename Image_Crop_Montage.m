@@ -14,77 +14,60 @@ close all;
 
 mainDir = fullfile(cd);
 
-imDir = dir('*.png');       %filenames saved to variable imDir.name
-lenPic = length(imDir);     %number of pictures
-pics = [];                  %empty array to store pics
+imDir = dir('*.png');                                                   %filenames saved to variable imDir.name
+lenPic = length(imDir);                                                 %number of pictures
+pics = [];                                                              %empty array to store pics
 tempFileName = [];
 
+%%
 %initialise crop area from first image
-I = imread(imDir(1).name);
-[x1, y1, z1] = size(I);
+I = imread(imDir(1).name);                                              %read first image
+[x1, y1, z1] = size(I);                                                 %get dimensions of first image
 
-dispText = sprintf('First image in folder is: %d pixels wide by %d pixels high\n', x1, y1);
+dispText = sprintf('First image in folder is: %d pixels wide by %d pixels high\n', x1, y1); %display dimensions of first image
 disp(dispText);
 
-scaleSize = input('Please choose a value for the scaled images from 0.0 (smallest) to 1.0 (default size): \n');
+scaleSize = input('Please choose a value for the scaled images from 0.0 (smallest) to 1.0 (default size): \n'); %get user input on size to scale images
+Iscaled = imresize(I, scaleSize);                                       %scale image based on user input
 
-Iscaled = imresize(I, scaleSize);
-
-[I2, rect] = imcrop(Iscaled);
-%I2: cropped area
-%rect: four-element position vector describing crop rectangle
-close;  %close figure
+[I2, rect] = imcrop(Iscaled);                                           %save crop region to variable 'rect' to use for all images
+close;                                                                  %close current figure
 
 
-%create temp folder if it doesnt exist
-exist tempCropsDir dir
+exist tempCropsDir dir                                                  %create temporary folder for cropped images if it doesn't already exist
 if ans ~=7;
     mkdir tempCropsDir
 end
 
-% exist tempCropsSmallDir dir
-% if ans ~=7
-%     mkdir tempCropsSmallDir
-% end
+tempLoc = strcat(mainDir,'\','tempCropsDir');                           %string for file location of cropped images directory
 
-tempLoc = strcat(mainDir,'\','tempCropsDir');
-%tempLocSmall = strcat(mainDir, '\', 'tempCropsSmallDir');
-%cd(temploc);
 
 
 %%
- for i = 1:lenPic
-    pics(i).loc = strcat(mainDir,'\',imDir(i).name);
-    pics(i).img = imread(pics(i).loc); %read image to variable 'pics'
-    pics(i).smallImg = imresize(pics(i).img, scaleSize);
-    pics(i).crop = imcrop(pics(i).smallImg,rect);
-    tempFileName(i).name = strcat(tempLoc, '\', num2str(i),'.jpg');
-    imwrite(pics(i).crop, tempFileName(i).name);
-    
-    
-    %for reduced size images:
-    %if image is over certain size:
-    %pics(i).smallCrop=imresize(pics(i).crop, scaleSize);
-    %tempFileName(i).small = strcat(tempLocSmall, '\', num2str(i), '.jpg');
-    %imwrite(pics(i).smallCrop, tempFileName(i).small);
-
- end
+for i = 1:lenPic
+    pics(i).loc             = strcat(mainDir,'\',imDir(i).name);        %read image locations to variable pics.loc
+    pics(i).img             = imread(pics(i).loc);                      %read image data  to variable pics.img
+    pics(i).smallImg        = imresize(pics(i).img, scaleSize);         %scale pics.img based on user input and save to pics.smallImg
+    pics(i).crop            = imcrop(pics(i).smallImg,rect);            %crop pics.smallImg based on user crop and save to pics.crop
+    tempFileName(i).name    = strcat(tempLoc, '\', num2str(i),'.jpg');  %string containing desired image crop file location
+    imwrite(pics(i).crop, tempFileName(i).name);                        %save cropped image to file location (required for montage)
+  
+end
  
- tempDirOutput = dir(fullfile(tempLoc,'*.jpg'));
- tempFileNames = {tempDirOutput.name};
+tempDirOutput = dir(fullfile(tempLoc,'*.jpg'));                         %filenames saved to variable for montage
+tempFileNames = {tempDirOutput.name};
  
- dispText = sprintf('Number of images is: %d', lenPic);
- disp(dispText);
+dispText = sprintf('Number of images is: %d', lenPic);                  %display number of images in command window
+disp(dispText);
 
  
- x = input('Please input X dimension for crop montage \n');
- y = input('Please input Y dimension for crop montage \n');
- cd(tempLoc);
+x = input('Please input X dimension for crop montage \n');              %ask for user input for montage display width
+y = input('Please input Y dimension for crop montage \n');              %ask for user input for montage display height
+cd(tempLoc);                                                            %change directory to cropped image location (required for montage)
  
- figure;
-fig = montage(tempFileNames, 'Size', [y x]);
+figure;
+fig = montage(tempFileNames, 'Size', [y x]);                            %display cropped images as montage
 
- %return to main directory
-cd(mainDir); 
-saveas(fig,'output.jpg');
+cd(mainDir);                                                            %change directory to original directory
+saveas(fig,'output.jpg');                                               %save figure as a file 'output.jpg'
  
