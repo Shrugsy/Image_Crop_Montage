@@ -6,6 +6,8 @@
 %for crop montage
 %remember to make the command window active!
 
+
+%%
 clc;
 clear;
 close all;
@@ -19,7 +21,16 @@ tempFileName = [];
 
 %initialise crop area from first image
 I = imread(imDir(1).name);
-[I2, rect] = imcrop(I);
+[x1, y1, z1] = size(I);
+
+dispText = sprintf('First image in folder is: %d pixels wide by %d pixels high\n', x1, y1);
+disp(dispText);
+
+scaleSize = input('Please choose a value for the scaled images from 0.0 (smallest) to 1.0 (default size): \n');
+
+Iscaled = imresize(I, scaleSize);
+
+[I2, rect] = imcrop(Iscaled);
 %I2: cropped area
 %rect: four-element position vector describing crop rectangle
 close;  %close figure
@@ -27,25 +38,39 @@ close;  %close figure
 
 %create temp folder if it doesnt exist
 exist tempCropsDir dir
-if ans ~=7
+if ans ~=7;
     mkdir tempCropsDir
 end
 
-temploc = strcat(mainDir,'\','tempCropsDir')
-cd(temploc);
+% exist tempCropsSmallDir dir
+% if ans ~=7
+%     mkdir tempCropsSmallDir
+% end
+
+tempLoc = strcat(mainDir,'\','tempCropsDir');
+%tempLocSmall = strcat(mainDir, '\', 'tempCropsSmallDir');
+%cd(temploc);
 
 
 %%
  for i = 1:lenPic
     pics(i).loc = strcat(mainDir,'\',imDir(i).name);
     pics(i).img = imread(pics(i).loc); %read image to variable 'pics'
-    pics(i).crop = imcrop(pics(i).img,rect);
-    tempFileName(i).name = strcat(num2str(i),'.jpg');
+    pics(i).smallImg = imresize(pics(i).img, scaleSize);
+    pics(i).crop = imcrop(pics(i).smallImg,rect);
+    tempFileName(i).name = strcat(tempLoc, '\', num2str(i),'.jpg');
     imwrite(pics(i).crop, tempFileName(i).name);
+    
+    
+    %for reduced size images:
+    %if image is over certain size:
+    %pics(i).smallCrop=imresize(pics(i).crop, scaleSize);
+    %tempFileName(i).small = strcat(tempLocSmall, '\', num2str(i), '.jpg');
+    %imwrite(pics(i).smallCrop, tempFileName(i).small);
 
  end
  
- tempDirOutput = dir(fullfile(temploc,'*.jpg'));
+ tempDirOutput = dir(fullfile(tempLoc,'*.jpg'));
  tempFileNames = {tempDirOutput.name};
  
  dispText = sprintf('Number of images is: %d', lenPic);
@@ -54,10 +79,12 @@ cd(temploc);
  
  x = input('Please input X dimension for crop montage \n');
  y = input('Please input Y dimension for crop montage \n');
- montage(tempFileNames, 'Size', [y x]);
+ cd(tempLoc);
  
- 
- 
- %return to main directory
- cd(mainDir);
+ figure;
+fig = montage(tempFileNames, 'Size', [y x]);
 
+ %return to main directory
+cd(mainDir); 
+saveas(fig,'output.jpg');
+ 
