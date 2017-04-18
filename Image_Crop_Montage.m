@@ -13,8 +13,10 @@ clear;
 close all;
 iptsetpref('ImshowBorder','tight');
 
+mainDir = uigetdir;
+cd(mainDir);
 
-mainDir = fullfile(cd);
+%mainDir = fullfile(cd);
 
 imDir = dir('*.png');                                                   %filenames saved to variable imDir.name
 lenPic = length(imDir);                                                 %number of pictures
@@ -80,21 +82,30 @@ y = input('Please input Y dimension for crop montage \n');              %ask for
 cd(tempLoc);                                                            %change directory to cropped image location (required for montage)
  
 figure;
+fig = montage(tempFileNames, 'Size', [y x]);   
+MyMontage = get(fig, 'CData');
 
-questString = ('Display using ''montage'' function or ''imdisp'' (imdisp is not a native matlab function) (WARNING: imdisp currently has display issues in this program and will terminate with an error in the temp directory!)');
-questResult = questdlg(questString, 'Display using ''montage'' or ''imdisp''', 'montage', 'imdisp', 'montage');
 
-if strcmp(questResult, 'montage')
-    fig = montage(tempFileNames, 'Size', [y x]);                            %display cropped images as montage
-elseif strcmp(questResult, 'imdisp')
-%imdisp used for images of varying heights
-%this is not a native matlab function and must be included separately
-%http://au.mathworks.com/matlabcentral/fileexchange/22387-imdisp
-fig = imdisp(tempFileNames, 'Size', [y x]);
-else
-    disp('No choice found for montage method');
-end
+cd(mainDir);      
+%change directory to original directory
 
-cd(mainDir);                                                            %change directory to original directory
+imwrite(MyMontage, 'output.jpg', 'jpg');
 
-hgexport(gcf, 'output.jpg', hgexport('factorystyle'), 'Format', 'jpeg'); %save figure as a file 'output.jpg'
+% questString = ('Display using ''montage'' function or ''imdisp'' (imdisp is not a native matlab function) (WARNING: imdisp currently has display issues in this program and will terminate with an error in the temp directory!)');
+% questResult = questdlg(questString, 'Display using ''montage'' or ''imdisp''', 'montage', 'imdisp', 'montage');
+% 
+% if strcmp(questResult, 'montage')
+%     fig = montage(tempFileNames, 'Size', [y x]);                            %display cropped images as montage
+% elseif strcmp(questResult, 'imdisp')
+% %imdisp used for images of varying heights
+% %this is not a native matlab function and must be included separately
+% %http://au.mathworks.com/matlabcentral/fileexchange/22387-imdisp
+% fig = imdisp(tempFileNames, 'Size', [y x]);
+% else
+%     disp('No choice found for montage method');
+% end
+
+
+
+
+%hgexport(gcf, 'output.jpg', hgexport('factorystyle'), 'Format', 'jpeg'); %save figure as a file 'output.jpg'
